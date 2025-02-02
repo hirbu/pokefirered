@@ -28,7 +28,8 @@ static const u8 sTextSpeedFrameDelays[] =
 {
     [OPTIONS_TEXT_SPEED_SLOW] = 8,
     [OPTIONS_TEXT_SPEED_MID]  = 4,
-    [OPTIONS_TEXT_SPEED_FAST] = 1
+    [OPTIONS_TEXT_SPEED_FAST] = 1,
+    [OPTIONS_TEXT_SPEED_INST] = 1
 };
 
 static const struct WindowTemplate sStandardTextBox_WindowTemplates[] = 
@@ -457,9 +458,9 @@ void LoadStdWindowFrameGfx(void)
     else
     {
         Menu_LoadStdPal();
-        LoadMenuMessageWindowGfx(0, DLG_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(DLG_WINDOW_PALETTE_NUM));
+        LoadMenuMessageWindowGfx(0, DLG_WINDOW_BASE_TILE_NUM, DLG_WINDOW_PALETTE_NUM * 0x10);
     }
-    LoadUserWindowGfx(0, STD_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM));
+    LoadUserWindowGfx(0, STD_WINDOW_BASE_TILE_NUM, STD_WINDOW_PALETTE_NUM * 0x10);
 }
 
 void DrawDialogueFrame(u8 windowId, bool8 copyToVram)
@@ -591,7 +592,7 @@ static void WindowFunc_ClearDialogWindowAndFrame(u8 bg, u8 tilemapLeft, u8 tilem
 
 void EraseFieldMessageBox(bool8 copyToVram)
 {
-    FillBgTilemapBufferRect(0, 0, 0, 0, 0x20, 0x20, 17);
+    FillBgTilemapBufferRect(0, 0, 0, 0, 0x20, 0x20, 0x11);
     if (copyToVram == TRUE)
         CopyBgTilemapBufferToVram(0);
 }
@@ -610,19 +611,19 @@ void LoadMessageBoxAndFrameGfx(u8 windowId, bool8 copyToVram)
     }
     else
     {
-        LoadMenuMessageWindowGfx(windowId, DLG_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(DLG_WINDOW_PALETTE_NUM));
+        LoadMenuMessageWindowGfx(windowId, DLG_WINDOW_BASE_TILE_NUM, DLG_WINDOW_PALETTE_NUM * 0x10);
     }
     DrawDialogFrameWithCustomTileAndPalette(windowId, copyToVram, DLG_WINDOW_BASE_TILE_NUM, DLG_WINDOW_PALETTE_NUM);
 }
 
 void Menu_LoadStdPal(void)
 {
-    LoadPalette(gStandardMenuPalette, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM), PLTT_SIZEOF(10));
+    LoadPalette(gStandardMenuPalette, STD_WINDOW_PALETTE_NUM * 0x10, 0x14);
 }
 
 void Menu_LoadStdPalAt(u16 offset)
 {
-    LoadPalette(gStandardMenuPalette, offset, PLTT_SIZEOF(10));
+    LoadPalette(gStandardMenuPalette, offset, 0x14);
 }
 
 // Unused
@@ -633,7 +634,7 @@ static const u16 *GetStdMenuPalette(void)
 
 static u16 GetStdPalColor(u8 colorNum)
 {
-    if (colorNum > 15)
+    if (colorNum > 0xF)
         colorNum = 0;
     return gStandardMenuPalette[colorNum];
 }
@@ -658,7 +659,7 @@ void DisplayYesNoMenuDefaultNo(void)
 u8 GetTextSpeedSetting(void)
 {
     u32 speed;
-    if (gSaveBlock2Ptr->optionsTextSpeed > OPTIONS_TEXT_SPEED_FAST)
+    if (gSaveBlock2Ptr->optionsTextSpeed > OPTIONS_TEXT_SPEED_INST)
         gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_MID;
     return sTextSpeedFrameDelays[gSaveBlock2Ptr->optionsTextSpeed];
 }
@@ -700,7 +701,7 @@ u16 GetStdWindowBaseTileNum(void)
 
 void DrawHelpMessageWindowWithText(const u8 * text)
 {
-    LoadHelpMessageWindowGfx(CreateHelpMessageWindow(), DLG_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(DLG_WINDOW_PALETTE_NUM));
+    LoadHelpMessageWindowGfx(CreateHelpMessageWindow(), DLG_WINDOW_BASE_TILE_NUM, 0x10 * DLG_WINDOW_PALETTE_NUM);
     PrintTextOnHelpMessageWindow(text, 2);
 }
 
@@ -712,8 +713,8 @@ void DestroyHelpMessageWindow_(void)
 void LoadSignpostWindowFrameGfx(void)
 {
     Menu_LoadStdPal();
-    LoadSignpostWindowGfx(0, DLG_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(DLG_WINDOW_PALETTE_NUM));
-    LoadUserWindowGfx(0, STD_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM));
+    LoadSignpostWindowGfx(0, DLG_WINDOW_BASE_TILE_NUM, 0x10 * DLG_WINDOW_PALETTE_NUM);
+    LoadUserWindowGfx(0, STD_WINDOW_BASE_TILE_NUM, 0x10 * STD_WINDOW_PALETTE_NUM);
 }
 
 void SetDefaultFontsPointer(void)
